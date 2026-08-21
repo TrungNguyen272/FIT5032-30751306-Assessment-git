@@ -1,15 +1,15 @@
 <template>
   <div class="container mt-5">
     <div class="row">
-      <div class="col-md-8 offset-md-2">
+      <div class="col-sm-8 offset-sm-2">
         <h1 class="text-center">User Information Form</h1>
         <form @submit.prevent="submitForm">
           <div class="row mb-3">
-            <div class="col-md-6">
+            <div class="col-sm-6">
               <label for="username" class="form-label">Username</label>
               <input type="text" class="form-control" id="username" v-model="formData.username" />
             </div>
-            <div class="col-md-6">
+            <div class="col-sm-6">
               <label for="password" class="form-label">Password</label>
               <input
                 type="password"
@@ -21,7 +21,7 @@
           </div>
 
           <div class="row mb-3">
-            <div class="col-md-6">
+            <div class="col-sm-6">
               <div class="form-check">
                 <input
                   type="checkbox"
@@ -33,7 +33,7 @@
               </div>
             </div>
 
-            <div class="col-md-6">
+            <div class="col-sm-6">
               <label for="gender" class="form-label">Gender</label>
               <select class="form-select" id="gender" v-model="formData.gender">
                 <option value="male">Male</option>
