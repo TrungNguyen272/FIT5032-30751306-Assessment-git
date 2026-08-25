@@ -27,7 +27,7 @@
               class="btn btn-light btn-sm"
               type="button"
               disabled
-              title="Login/registration ships in the next milestone (BR C)"
+              title="Login/registration relationships (BR C)"
             >
               Log In
             </button>
