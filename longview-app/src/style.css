@@ -1,0 +1,44 @@
+:root {
+  --lv-green-dark: #1b4332;
+  --lv-green: #2d6a4f;
+  --lv-green-mid: #40916c;
+  --lv-green-light: #d8f3dc;
+}
+
+#app {
+  min-height: 100vh;
+}
+
+.navbar.bg-dark {
+  background-color: var(--lv-green-dark) !important;
+}
+
+.btn-dark {
+  background-color: var(--lv-green-dark);
+  border-color: var(--lv-green-dark);
+}
+.btn-dark:hover {
+  background-color: var(--lv-green);
+  border-color: var(--lv-green);
+}
+
+.btn-outline-dark {
+  color: var(--lv-green-dark);
+  border-color: var(--lv-green-dark);
+}
+.btn-outline-dark:hover {
+  background-color: var(--lv-green-dark);
+  border-color: var(--lv-green-dark);
+}
+
+.text-success {
+  color: var(--lv-green) !important;
+}
+
+.badge.text-bg-success {
+  background-color: var(--lv-green-mid) !important;
+}
+
+footer.bg-dark {
+  background-color: var(--lv-green-dark) !important;
+}
