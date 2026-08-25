@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "title": "Climate Basics: Transport",
+    "category": "Climate Literacy",
+    "type": "Course"
+  },
+  {
+    "id": 2,
+    "title": "Climate Basics: Everyday Choices",
+    "category": "Climate Literacy",
+    "type": "Course"
+  },
+  {
+    "id": 3,
+    "title": "School Workshops: Getting Started",
+    "category": "School Workshops",
+    "type": "Workshop"
+  }
+]

@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1,
+    "title": "Climate Basics: Transport (Course)",
+    "when": "Wednesday, 5:00 PM",
+    "where": "Clayton Library",
+    "type": "Course"
+  },
+  {
+    "id": 2,
+    "title": "Melbourne Saturday Walk",
+    "when": "Saturday, 8:00 AM",
+    "where": "Centre Park",
+    "type": "Program"
+  },
+  {
+    "id": 3,
+    "title": "Active-Travel Challenge",
+    "when": "Ongoing",
+    "where": "10 Local Primary Schools",
+    "type": "Program"
+  }
+]
