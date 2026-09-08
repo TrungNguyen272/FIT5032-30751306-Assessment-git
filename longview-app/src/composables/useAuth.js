@@ -45,7 +45,23 @@ export function useAuth() {
     return { success: true }
   }
 
-  users.value = [...users.value, account]
-  currentUserId.value = account.id
-  return { success: true }
+  async function login({ email, password }) {
+    const cleanEmail = email.trim().toLowerCase()
+    const enteredHash = await hashPassword(password)
+
+    const found = users.value.find((u) => u.email === cleanEmail && u.passwordHash === enteredHash)
+
+    if (!found) {
+      return { success: false, error: 'Incorrect email or password.' }
+    }
+
+    currentUserId.value = found.id
+    return { success: true }
+  }
+
+  function logout() {
+    currentUserId.value = null
+  }
+
+  return { currentUser, isLoggedIn, isAdmin, register, login, logout }
 }
