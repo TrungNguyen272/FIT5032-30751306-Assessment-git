@@ -22,18 +22,12 @@ const stats = ref([
             Longview brings climate courses, walking & cycling groups, and school challenges
             together to close the gap between climate awareness and action.
           </p>
-          <router-link to="/courses" class="btn btn-dark btn-lg me-2 mb-2"
-            >Explore Courses</router-link
-          >
-          <router-link to="/programs" class="btn btn-outline-dark btn-lg mb-2"
-            >Find a Group</router-link
-          >
+          <router-link to="/courses" class="btn btn-dark btn-lg me-2 mb-2">Explore Courses</router-link>
+          <router-link to="/programs" class="btn btn-outline-dark btn-lg mb-2">Find a Group</router-link>
         </div>
         <div class="col-5">
-          <div
-            class="bg-white rounded shadow-sm d-flex align-items-center justify-content-center"
-            style="height: 220px"
-          ></div>
+          <div class="bg-white rounded shadow-sm d-flex align-items-center justify-content-center"
+            style="height: 220px"></div>
         </div>
       </div>
     </div>
@@ -56,17 +50,12 @@ const stats = ref([
     <div class="row g-4">
       <div class="col-4" v-for="event in events" :key="event.id">
         <div class="card h-100 shadow-sm">
-          <div
-            class="bg-light d-flex align-items-center justify-content-center"
-            style="height: 140px"
-          ></div>
+          <div class="bg-light d-flex align-items-center justify-content-center" style="height: 140px"></div>
           <div class="card-body">
             <span class="badge text-bg-light text-muted border mb-2">{{ event.type }}</span>
             <h6 class="card-title">{{ event.title }}</h6>
             <p class="card-text text-muted small mb-3">{{ event.when }} @ {{ event.where }}</p>
-            <router-link to="/courses" class="btn btn-outline-dark btn-sm w-100"
-              >View Details</router-link
-            >
+            <router-link to="/courses" class="btn btn-outline-dark btn-sm w-100">View Details</router-link>
           </div>
         </div>
       </div>
@@ -76,10 +65,7 @@ const stats = ref([
   <section class="container py-4">
     <div class="row align-items-center g-4">
       <div class="col-7">
-        <blockquote
-          class="fst-italic border-start border-3 ps-3"
-          style="border-color: var(--lv-green) !important"
-        >
+        <blockquote class="fst-italic border-start border-3 ps-3" style="border-color: var(--lv-green) !important">
           "I finished the short climate course on Monday and joined a local walking group by
           Wednesday. It made getting involved feel natural and local."
         </blockquote>
