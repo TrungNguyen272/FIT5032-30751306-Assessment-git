@@ -58,7 +58,7 @@ const ratingOverview = computed(() =>
                 <tr>
                     <th>Course</th>
                     <th>Average rating</th>
-                    <th># of ratings</th>
+                    <th>Number of ratings</th>
                 </tr>
             </thead>
             <tbody>
