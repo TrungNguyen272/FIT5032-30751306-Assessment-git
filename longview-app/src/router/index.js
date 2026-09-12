@@ -30,7 +30,7 @@ const router = createRouter({
       path: '/admin',
       name: 'admin',
       component: AdminView,
-      meta: { requiresAuth: true, requiresRole: ROLES.ADMIN },
+      meta: { requiresAuth: true, role: ROLES.ADMIN },
     },
   ],
 })
