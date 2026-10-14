@@ -1,0 +1,42 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    // Profiles: users/{uid}
+    match /users/{uid} {
+      // You can read your own profile; nobody else's from the browser.
+      allow read: if signedIn() && request.auth.uid == uid;
+
+      // The browser may create ONLY its own profile, and only as a member.
+      // Admin is granted by the assignRole Cloud Function (Admin SDK
+      // bypasses these rules), so a client can never promote itself.
+      allow create: if signedIn()
+        && request.auth.uid == uid
+        && request.resource.data.role == 'member'
+        && request.resource.data.keys().hasOnly(['name', 'email', 'role', 'createdAt'])
+        && request.resource.data.email == request.auth.token.email;
+
+      // Role can never be changed from the client.
+      allow update: if signedIn()
+        && request.auth.uid == uid
+        && request.resource.data.role == resource.data.role;
+
+      allow delete: if false;
+    }
+
+    // Server-only collections (written by Cloud Functions via Admin SDK).
+    match /mailLog/{id} {
+      allow read, write: if false;
+    }
+
+    // Everything else is closed by default.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
