@@ -30,21 +30,35 @@ const router = createRouter({
       path: '/admin',
       name: 'admin',
       component: AdminView,
-      meta: { requiresAuth: true, role: ROLES.ADMIN },
+
+      meta: { requiresAuth: true, requiredRole: ROLES.ADMIN },
     },
   ],
 })
 
-router.beforeEach((to) => {
-  const { isLoggedIn, isAdmin } = useAuth()
+/**
+ * BR C.2 (Role-based authentication): this global guard runs before
+ * every navigation. Routes flagged with `meta.requiresAuth` redirect
+ * an anonymous visitor to /login. Routes additionally flagged with
+ * `meta.requiredRole` also check the logged-in user's role - a Member hitting
+ * /admin directly is redirected home rather than shown the page,
+ * enforced in the router, not just hidden from the nav bar.
+ */
+router.beforeEach(async (to) => {
+  const { isLoggedIn, isAdmin, authReady } = useAuth()
+
+  // Wait for Firebase to restore the session (e.g. after a page refresh)
+  // before deciding whether this visitor is logged in.
+  await authReady
 
   if (to.meta.requiresAuth && !isLoggedIn.value) {
     return { path: '/login', query: { redirect: to.fullPath } }
   }
 
-  if (to.meta.role === ROLES.ADMIN && !isAdmin.value) {
+  if (to.meta.requiredRole === ROLES.ADMIN && !isAdmin.value) {
     return { path: '/' }
   }
+
   return true
 })
 
