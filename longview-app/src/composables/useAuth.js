@@ -162,7 +162,10 @@ export function useAuth() {
   async function login({ email, password }) {
     if (!isFirebaseConfigured) return NOT_CONFIGURED
     try {
-      await signInWithEmailAndPassword(auth, email.trim(), password)
+      const credential = await signInWithEmailAndPassword(auth, email.trim(), password)
+      // Load the role profile before returning so the route guard sees a
+      // logged-in user straight away.
+      await loadProfile(credential.user)
       return { success: true }
     } catch (err) {
       return { success: false, error: friendlyMessage(err) }
@@ -172,7 +175,8 @@ export function useAuth() {
   async function loginWithGoogle() {
     if (!isFirebaseConfigured) return NOT_CONFIGURED
     try {
-      await signInWithPopup(auth, new GoogleAuthProvider())
+      const credential = await signInWithPopup(auth, new GoogleAuthProvider())
+      await loadProfile(credential.user)
       return { success: true }
     } catch (err) {
       return { success: false, error: friendlyMessage(err) }
