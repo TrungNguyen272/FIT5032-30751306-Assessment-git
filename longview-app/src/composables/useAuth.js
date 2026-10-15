@@ -15,11 +15,9 @@ import { httpsCallable } from 'firebase/functions'
 import { auth, db, functions, isFirebaseConfigured } from '../firebase'
 
 /**
- * useAuth (BR C.1 / C.2, upgraded for BR D.1 External Authentication)
  *
  * Identity now comes from Firebase Authentication (email + password and
  * Google sign-in), so the app never stores or hashes a password itself.
- * That removes the weakest point of the earlier localStorage version.
  *
  * Authorisation (the Member/Admin role) lives in a Firestore document at
  * users/{uid}. The browser can only ever create that document as a
