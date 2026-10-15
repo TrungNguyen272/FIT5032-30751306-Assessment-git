@@ -5,8 +5,8 @@ import { useAuth } from '../composables/useAuth'
 const router = useRouter()
 const { currentUser, isLoggedIn, isAdmin, logout } = useAuth()
 
-function handleLogout() {
-  logout()
+async function handleLogout() {
+  await logout()
   router.push('/')
 }
 </script>
@@ -30,6 +30,7 @@ function handleLogout() {
           <li class="nav-item">
             <router-link class="nav-link" to="/contact">Get Involved</router-link>
           </li>
+
           <li class="nav-item">
             <router-link class="nav-link" to="/about">About</router-link>
           </li>
@@ -38,6 +39,7 @@ function handleLogout() {
             <li class="nav-item">
               <router-link class="nav-link" to="/dashboard">Dashboard</router-link>
             </li>
+
             <li v-if="isAdmin" class="nav-item">
               <router-link class="nav-link" to="/admin">Admin</router-link>
             </li>

@@ -12,6 +12,7 @@ const form = reactive({
     password: '',
     confirmPassword: '',
     role: ROLES.MEMBER,
+    inviteCode: '',
 })
 
 const errors = reactive({
@@ -19,16 +20,24 @@ const errors = reactive({
     email: '',
     password: '',
     confirmPassword: '',
+    inviteCode: '',
 })
 
+const roleNotice = ref('')
 const submitError = ref('')
 const isSubmitting = ref(false)
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const MIN_PASSWORD_LENGTH = 8
 
+
+/**
+ * required-field, format-check, and length-check types, 
+ * cross-field check (passwords must match).
+ */
 function validate() {
-    errors.name = form.name ? '' : 'Please enter your name.'
+    errors.name = form.name.trim() ? '' : 'Please enter your name.'
+
     if (!form.email.trim()) {
         errors.email = 'Please enter your email.'
     } else if (!EMAIL_PATTERN.test(form.email.trim())) {
@@ -40,19 +49,32 @@ function validate() {
     if (!form.password) {
         errors.password = 'Please choose a password.'
     } else if (form.password.length < MIN_PASSWORD_LENGTH) {
-        errors.password = `Password must be at least ${MIN_PASSWORD_LENGTH} characters long.`
+        errors.password = `Password must be at least ${MIN_PASSWORD_LENGTH} characters.`
     } else {
         errors.password = ''
     }
 
-    errors.confirmPassword = form.confirmPassword === form.password ? '' : 'Passwords do not match.'
-    return !errors.name && !errors.email && !errors.password && !errors.confirmPassword
+    errors.confirmPassword =
+        form.confirmPassword === form.password ? '' : 'Passwords do not match.'
+
+    errors.inviteCode =
+        form.role === ROLES.ADMIN && !form.inviteCode.trim()
+            ? 'Admin sign-up needs an invite code.'
+            : ''
+
+
+    return (
+        !errors.name &&
+        !errors.email &&
+        !errors.password &&
+        !errors.confirmPassword &&
+        !errors.inviteCode
+    )
 }
 
 async function handleSubmit() {
     submitError.value = ''
-    if (!validate())
-        return
+    if (!validate()) return
 
     isSubmitting.value = true
     const result = await register(form)
@@ -62,9 +84,18 @@ async function handleSubmit() {
         submitError.value = result.error
         return
     }
+
+    if (result.roleError) {
+        // Account exists, but the server refused the admin role. Tell them
+        // instead of silently dropping them on a Member dashboard.
+        roleNotice.value = result.roleError
+        return
+    }
+
     router.push('/dashboard')
 }
 </script>
+
 
 <template>
     <div class="container py-5" style="max-width: 480px">
@@ -72,6 +103,11 @@ async function handleSubmit() {
 
         <div v-if="submitError" class="alert alert-danger" role="alert">
             {{ submitError }}
+        </div>
+
+        <div v-if="roleNotice" class="alert alert-warning" role="status">
+            {{ roleNotice }}
+            <router-link to="/dashboard">Continue to your dashboard</router-link>
         </div>
 
         <form novalidate @submit.prevent="handleSubmit">
@@ -104,6 +140,7 @@ async function handleSubmit() {
             </div>
 
             <div class="mb-4">
+
                 <label class="form-label d-block">I'm joining as</label>
                 <div class="btn-group w-100" role="group">
                     <input id="roleMember" v-model="form.role" type="radio" class="btn-check" value="member" />
@@ -113,12 +150,20 @@ async function handleSubmit() {
                     <label class="btn btn-outline-dark" for="roleAdmin">Admin</label>
                 </div>
                 <p class="form-text">
-                    Admins get access to the admin dashboard.
+                    Admins get access to the admin dashboard to manage groups and moderate ratings.
                 </p>
             </div>
 
+            <div v-if="form.role === 'admin'" class="mb-4">
+                <label for="inviteCode" class="form-label">Admin invite code</label>
+                <input id="inviteCode" v-model="form.inviteCode" type="password" class="form-control"
+                    :class="{ 'is-invalid': errors.inviteCode }" autocomplete="off" />
+                <div v-if="errors.inviteCode" class="invalid-feedback">{{ errors.inviteCode }}</div>
+                <p class="form-text">Checked on the server - ask the project owner for the code.</p>
+            </div>
+
             <button type="submit" class="btn btn-dark w-100" :disabled="isSubmitting">
-                {{ isSubmitting ? 'Creating account ...' : 'Create Account' }}
+                {{ isSubmitting ? 'Creating account...' : 'Create Account' }}
             </button>
         </form>
 
