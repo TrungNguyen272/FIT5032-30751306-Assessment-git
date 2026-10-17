@@ -91,8 +91,8 @@ async function handleSubmit() {
         roleNotice.value = result.roleError
         return
     }
-
-    router.push('/dashboard')
+    // Admins go straight to the admin page, members to their dashboard.
+    router.push(form.role === ROLES.ADMIN ? '/admin' : '/dashboard')
 }
 </script>
 

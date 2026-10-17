@@ -1,19 +1,35 @@
 <script setup>
-import { computed } from 'vue'
-import { useAuth, ROLES } from '../composables/useAuth'
+import { computed, onMounted, ref } from 'vue'
+import { httpsCallable } from 'firebase/functions'
+import { functions } from '../firebase'
 import { useRatings } from '../composables/useRatings'
 import coursesData from '../data/courses.json'
-import { useLocalStorage } from '../composables/useLocalStorage'
 
-const users = useLocalStorage('longview:users', [])
 const { getAverage, getCount } = useRatings()
 
-const memberCount = computed(
-    () => users.value.filter((u) => u.role === ROLES.MEMBER).length
-)
-const adminCount = computed(
-    () => users.value.filter((u) => u.role === ROLES.ADMIN).length
-)
+// Account numbers come from the adminSummary Cloud Function (BR E.1).
+// The function re-checks the caller's role on the server, so if
+// someone bypassed the router guard they would get "permission-denied".
+const stats = ref(null)
+const loadError = ref('')
+const isLoading = ref(true)
+
+async function loadStats() {
+    isLoading.value = true
+    loadError.value = ''
+    try {
+        const fetchSummary = httpsCallable(functions, 'adminSummary')
+        const result = await fetchSummary()
+        stats.value = result.data
+    } catch (err) {
+        loadError.value = err.message || 'Could not load account statistics.'
+    } finally {
+        isLoading.value = false
+    }
+}
+
+onMounted(loadStats)
+
 
 const ratingOverview = computed(() =>
     coursesData.map((c) => ({
@@ -22,6 +38,14 @@ const ratingOverview = computed(() =>
         count: getCount(c.id),
     }))
 )
+
+// One entry per stat card, so the template can loop over them.
+const cards = computed(() => [
+    { label: 'Total accounts', value: stats.value?.totalAccounts },
+    { label: 'Members', value: stats.value?.members },
+    { label: 'Admins', value: stats.value?.admins },
+    { label: 'Summaries emailed', value: stats.value?.summariesSent },
+])
 </script>
 
 <template>
@@ -31,23 +55,19 @@ const ratingOverview = computed(() =>
             Visible only to accounts with the Admin role.
         </p>
 
+        <div v-if="loadError" class="alert alert-danger d-flex justify-content-between align-items-center" role="alert">
+            <span>{{ loadError }}</span>
+            <button type="button" class="btn btn-outline-danger btn-sm" @click="loadStats">Retry</button>
+        </div>
+
         <div class="row g-3 mb-5">
-            <div class="col-4">
-                <div class="card text-center p-3">
-                    <p class="display-6 fw-bold mb-0" style="color: var(--lv-green)">{{ users.length }}</p>
-                    <p class="text-muted small mb-0">Total accounts</p>
-                </div>
-            </div>
-            <div class="col-4">
-                <div class="card text-center p-3">
-                    <p class="display-6 fw-bold mb-0" style="color: var(--lv-green)">{{ memberCount }}</p>
-                    <p class="text-muted small mb-0">Members</p>
-                </div>
-            </div>
-            <div class="col-4">
-                <div class="card text-center p-3">
-                    <p class="display-6 fw-bold mb-0" style="color: var(--lv-green)">{{ adminCount }}</p>
-                    <p class="text-muted small mb-0">Admins</p>
+            <div v-for="card in cards" :key="card.label" class="col-6 col-md-3">
+                <div class="card text-center p-3 h-100">
+                    <p class="display-6 fw-bold mb-0" style="color: var(--lv-green)">
+                        <span v-if="isLoading" class="placeholder-glow"><span class="placeholder col-4"></span></span>
+                        <template v-else>{{ card.value ?? '—' }}</template>
+                    </p>
+                    <p class="text-muted small mb-0">{{ card.label }}</p>
                 </div>
             </div>
         </div>
