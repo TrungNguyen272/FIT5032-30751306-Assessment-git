@@ -27,6 +27,12 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
+      path: '/community',
+      name: 'community',
+      component: () => import('../views/CommunityView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
       path: '/admin',
       name: 'admin',
       component: AdminView,
@@ -37,7 +43,7 @@ const router = createRouter({
 })
 
 /**
- * BR C.2 (Role-based authentication): this global guard runs before
+ * BR C.2 (Role-based authentication): this guard runs before
  * every navigation. Routes flagged with `meta.requiresAuth` redirect
  * an anonymous visitor to /login. Routes additionally flagged with
  * `meta.requiredRole` also check the logged-in user's role - a Member hitting
