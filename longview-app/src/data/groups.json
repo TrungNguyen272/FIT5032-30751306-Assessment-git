@@ -1,0 +1,74 @@
+[
+  {
+    "id": 1,
+    "name": "Saturday City Walkers",
+    "type": "Walk",
+    "when": "Saturday, 8:00 AM",
+    "where": "Federation Square",
+    "lat": -37.818,
+    "lng": 144.9691
+  },
+  {
+    "id": 2,
+    "name": "Botanic Gardens Stroll",
+    "type": "Walk",
+    "when": "Sunday, 9:00 AM",
+    "where": "Observatory Gate, Royal Botanic Gardens",
+    "lat": -37.8304,
+    "lng": 144.9796
+  },
+  {
+    "id": 3,
+    "name": "Albert Park Lake Riders",
+    "type": "Bike",
+    "when": "Saturday, 7:30 AM",
+    "where": "Albert Park Lake",
+    "lat": -37.8412,
+    "lng": 144.9696
+  },
+  {
+    "id": 4,
+    "name": "Carlton Gardens Climate Cafe",
+    "type": "Course",
+    "when": "Wednesday, 6:00 PM",
+    "where": "Carlton Gardens",
+    "lat": -37.8047,
+    "lng": 144.9717
+  },
+  {
+    "id": 5,
+    "name": "Monash Clayton Active-Travel Hub",
+    "type": "School",
+    "when": "Thursday, 3:30 PM",
+    "where": "Monash University, Clayton",
+    "lat": -37.9141,
+    "lng": 145.1319
+  },
+  {
+    "id": 6,
+    "name": "Footscray Park Bike Buddies",
+    "type": "Bike",
+    "when": "Sunday, 8:00 AM",
+    "where": "Footscray Park",
+    "lat": -37.8008,
+    "lng": 144.895
+  },
+  {
+    "id": 7,
+    "name": "St Kilda Pier Sunrise Walk",
+    "type": "Walk",
+    "when": "Friday, 6:30 AM",
+    "where": "St Kilda Pier",
+    "lat": -37.8672,
+    "lng": 144.9738
+  },
+  {
+    "id": 8,
+    "name": "Box Hill Gardens Walkers",
+    "type": "Walk",
+    "when": "Tuesday, 5:30 PM",
+    "where": "Box Hill Gardens",
+    "lat": -37.8189,
+    "lng": 145.1221
+  }
+]
