@@ -82,7 +82,9 @@ export function buildSummaryPdf({ name, bookmarked, rated, note = '', generatedO
       .fontSize(10)
       .font('Helvetica')
       .fillColor('#666666')
-      .text(`Generated ${generatedOn.toLocaleDateString('en-AU', { dateStyle: 'long' })}`)
+      .text(
+        `Generated ${generatedOn.toLocaleDateString('en-AU', { dateStyle: 'long', timeZone: 'Australia/Melbourne' })}`,
+      )
     doc.moveDown(1.2)
 
     if (note) {
