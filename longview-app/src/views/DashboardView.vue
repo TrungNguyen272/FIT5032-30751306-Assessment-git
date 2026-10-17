@@ -1,5 +1,7 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+import { httpsCallable } from 'firebase/functions'
+import { functions } from '../firebase'
 import { useAuth } from '../composables/useAuth'
 import { useRatings } from '../composables/useRatings'
 import coursesData from '../data/courses.json'
@@ -18,6 +20,79 @@ const ratedCourses = computed(() =>
         .map((c) => ({ course: c, stars: getUserRating(c.id, currentUser.value?.id) }))
         .filter((r) => r.stars > 0)
 )
+
+// BR D.2: compose an email and send it through the sendLearningSummary
+// Cloud Function. The recipient is the signed-in user's own address and is
+// picked on the server from their login token, so it is shown here but can't
+// be edited. The function repeats every check, because browser checks can be bypassed.
+const SUBJECT_MIN = 3
+const SUBJECT_MAX = 100
+const NOTE_MAX = 300
+
+const email = ref({
+    subject: 'Your Longview learning summary',
+    note: '',
+    includeBookmarks: true,
+    includeRatings: true,
+})
+
+const errors = ref({ subject: null, note: null, selection: null })
+
+const validateSubject = (blur) => {
+    const length = email.value.subject.trim().length
+    if (length < SUBJECT_MIN) {
+        if (blur) errors.value.subject = `Subject must be at least ${SUBJECT_MIN} characters.`
+    } else if (length > SUBJECT_MAX) {
+        errors.value.subject = `Subject must be ${SUBJECT_MAX} characters or fewer.`
+    } else {
+        errors.value.subject = null
+    }
+}
+
+const validateNote = () => {
+    errors.value.note =
+        email.value.note.length > NOTE_MAX ? `Note must be ${NOTE_MAX} characters or fewer.` : null
+}
+
+// PDF content, depending on the two checkboxes.
+const bookmarksToSend = computed(() => (email.value.includeBookmarks ? bookmarkedCourses.value : []))
+const ratingsToSend = computed(() => (email.value.includeRatings ? ratedCourses.value : []))
+
+const validateSelection = () => {
+    errors.value.selection =
+        bookmarksToSend.value.length + ratingsToSend.value.length === 0
+            ? 'Choose at least one bookmarked or rated course to include.'
+            : null
+}
+
+const sendStatus = ref('idle') // idle | sending | sent | error
+const sendMessage = ref('')
+
+async function sendSummary() {
+    validateSubject(true)
+    validateNote()
+    validateSelection()
+    if (errors.value.subject || errors.value.note || errors.value.selection) return
+
+    sendStatus.value = 'sending'
+    sendMessage.value = ''
+    try {
+        const call = httpsCallable(functions, 'sendLearningSummary')
+        const result = await call({
+            subject: email.value.subject.trim(),
+            note: email.value.note.trim(),
+            bookmarked: bookmarksToSend.value.map((c) => c.title),
+            rated: ratingsToSend.value.map((r) => ({ title: r.course.title, stars: r.stars })),
+        })
+        sendStatus.value = 'sent'
+        sendMessage.value = `Sent to ${result.data.to}. It can take a minute to arrive, so check your spam folder too.`
+        email.value.note = ''
+    } catch (err) {
+        sendStatus.value = 'error'
+        //  errors carry a safe, human-readable message written on the server.
+        sendMessage.value = err.message || 'Could not send the email.'
+    }
+}
 </script>
 
 <template>
@@ -26,6 +101,79 @@ const ratedCourses = computed(() =>
         <p class="text-muted mb-4">
             Role: <span class="badge text-bg-secondary">{{ currentUser?.role }}</span>
         </p>
+        <form class="card card-body mb-4" novalidate @submit.prevent="sendSummary">
+            <h2 class="h6 mb-1">Email me my learning summary</h2>
+            <p class="small text-muted mb-3">
+                We'll build a PDF of your courses and attach it to an email.
+            </p>
+
+            <div class="mb-3">
+                <label for="mailTo" class="form-label small fw-semibold mb-1">To</label>
+                <input id="mailTo" type="email" class="form-control form-control-sm" :value="currentUser?.email"
+                    readonly />
+                <div class="form-text">Sent to your account address only.</div>
+            </div>
+
+            <div class="mb-3">
+                <label for="mailSubject" class="form-label small fw-semibold mb-1">Subject</label>
+                <input id="mailSubject" v-model="email.subject" type="text" class="form-control form-control-sm"
+                    :class="{ 'is-invalid': errors.subject }" :aria-invalid="errors.subject ? 'true' : 'false'"
+                    aria-describedby="mailSubjectError" @blur="validateSubject(true)" @input="validateSubject(false)" />
+                <div id="mailSubjectError" class="invalid-feedback">{{ errors.subject }}</div>
+            </div>
+
+            <fieldset class="mb-3">
+                <legend class="form-label small fw-semibold mb-1">Include in the PDF</legend>
+                <div class="form-check">
+                    <input id="incBookmarks" v-model="email.includeBookmarks" type="checkbox" class="form-check-input"
+                        @change="validateSelection" />
+                    <label class="form-check-label small" for="incBookmarks">
+                        Bookmarked courses ({{ bookmarkedCourses.length }})
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input id="incRatings" v-model="email.includeRatings" type="checkbox" class="form-check-input"
+                        @change="validateSelection" />
+                    <label class="form-check-label small" for="incRatings">
+                        Courses I've rated ({{ ratedCourses.length }})
+                    </label>
+                </div>
+                <p v-if="errors.selection" class="small text-danger mt-1 mb-0" role="alert">
+                    {{ errors.selection }}
+                </p>
+            </fieldset>
+
+            <div class="mb-3">
+                <label for="mailNote" class="form-label small fw-semibold mb-1">
+                    Add a note <span class="fw-normal text-muted">(optional)</span>
+                </label>
+                <textarea id="mailNote" v-model="email.note" rows="3" class="form-control form-control-sm"
+                    :class="{ 'is-invalid': errors.note }" :aria-invalid="errors.note ? 'true' : 'false'"
+                    aria-describedby="mailNoteCount mailNoteError" @input="validateNote"></textarea>
+                <div class="d-flex justify-content-between">
+                    <div id="mailNoteError" class="invalid-feedback d-block me-3">{{ errors.note }}</div>
+                    <div id="mailNoteCount" class="form-text ms-auto text-nowrap"
+                        :class="{ 'text-danger': email.note.length > NOTE_MAX }">
+                        {{ email.note.length }} / {{ NOTE_MAX }}
+                    </div>
+                </div>
+            </div>
+
+            <p class="small text-muted mb-3">
+                Attachment: <strong>longview-learning-summary.pdf</strong>
+            </p>
+
+            <div>
+                <button type="submit" class="btn btn-dark btn-sm" :disabled="sendStatus === 'sending'">
+                    {{ sendStatus === 'sending' ? 'Sending…' : 'Send email' }}
+                </button>
+            </div>
+
+            <p v-if="sendMessage" class="small mt-3 mb-0"
+                :class="sendStatus === 'sent' ? 'text-success' : 'text-danger'" role="status">
+                {{ sendMessage }}
+            </p>
+        </form>
 
         <h2 class="h5 mt-4 mb-3">Bookmarked Courses</h2>
         <p v-if="bookmarkedCourses.length === 0" class="text-muted">
