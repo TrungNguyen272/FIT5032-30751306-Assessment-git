@@ -49,3 +49,4 @@ firebase-debug.log*
 functions/node_modules
 functions/.env*
 functions/.secret.local
+!functions/.env.example
