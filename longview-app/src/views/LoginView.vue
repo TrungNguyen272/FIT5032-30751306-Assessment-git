@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, ref } from 'vue'
+import { nextTick, reactive, ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuth } from '../composables/useAuth'
 
@@ -32,9 +32,17 @@ function validate() {
     return !errors.email && !errors.password
 }
 
+function focusFirstError() {
+    const firstField = ['email', 'password'].find((field) => errors[field])
+    if (firstField) document.getElementById(firstField)?.focus()
+}
+
 async function handleSubmit() {
     errorMessage.value = ''
-    if (!validate()) return
+    if (!validate()) {
+        nextTick(focusFirstError)
+        return
+    }
 
     isSubmitting.value = true
     const result = await login(form)
@@ -66,6 +74,7 @@ async function handleReset() {
     infoMessage.value = ''
     if (!form.email.trim() || !EMAIL_PATTERN.test(form.email.trim())) {
         errors.email = 'Enter your email above first, then click "Forgot password?".'
+        nextTick(() => document.getElementById('email')?.focus())
         return
     }
     errors.email = ''
@@ -95,16 +104,18 @@ async function handleReset() {
             <div class="mb-3">
                 <label for="email" class="form-label">Email address</label>
                 <input id="email" v-model="form.email" type="email" class="form-control"
-                    :class="{ 'is-invalid': errors.email }" autocomplete="email" />
-                <div v-if="errors.email" class="invalid-feedback">{{ errors.email }}</div>
+                    :class="{ 'is-invalid': errors.email }" :aria-invalid="errors.email ? 'true' : 'false'"
+                    :aria-describedby="errors.email ? 'email-error' : null" autocomplete="email" />
+                <div v-if="errors.email" id="email-error" class="invalid-feedback">{{ errors.email }}</div>
             </div>
 
             <div class="mb-3">
                 <label for="password" class="form-label">Password</label>
                 <input id="password" v-model="form.password" type="password" class="form-control"
-                    :class="{ 'is-invalid': errors.password }" autocomplete="current-password" />
-                <div v-if="errors.password" class="invalid-feedback">{{ errors.password }}</div>
-            </div>
+                    :class="{ 'is-invalid': errors.password }" :aria-invalid="errors.password ? 'true' : 'false'"
+                    :aria-describedby="errors.password ? 'password-error' : null" autocomplete="current-password" />
+                <div v-if="errors.password" id="password-error" class="invalid-feedback">{{ errors.password }}</div>
+            </div> 
 
             <button type="submit" class="btn btn-dark w-100" :disabled="isSubmitting">
                 {{ isSubmitting ? 'Logging in...' : 'Log In' }}
