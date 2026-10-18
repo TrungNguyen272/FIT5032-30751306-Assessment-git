@@ -95,6 +95,30 @@ async function sendSummary() {
         sendMessage.value = err.message || 'Could not send the email.'
     }
 }
+
+// BR F.1 GenAI - Learning Coach. The askCoach Cloud Function calls Gemini, so
+// the API key never reaches the browser. Only course titles are sent.
+const coachStatus = ref('idle') // idle | loading | done | error
+const coachText = ref('')
+const coachError = ref('')
+
+async function askCoach() {
+  coachStatus.value = 'loading'
+  coachError.value = ''
+  try {
+    const ask = httpsCallable(functions, 'askCoach')
+    const result = await ask({
+      bookmarked: bookmarkedCourses.value.map((c) => c.title),
+      rated: ratedCourses.value.map((r) => ({ title: r.course.title, stars: r.stars })),
+    })
+    coachText.value = result.data.suggestion
+    coachStatus.value = 'done'
+  } catch (err) {
+    coachError.value = (err.message || 'The coach is unavailable right now.').replace(/\s*\[\d+\]\s*$/, '')
+    coachStatus.value = 'error'
+  }
+}
+
 </script>
 
 <template>
@@ -177,6 +201,25 @@ async function sendSummary() {
                 {{ sendMessage }}
             </p>
         </form>
+
+      <section class="card card-body mb-4" aria-labelledby="coach-heading">
+            <h2 id="coach-heading" class="h5">Learning Coach</h2>
+            <p class="small text-muted">
+                Get a short AI suggestion for what to learn next, based on the courses you bookmarked and rated.
+                Only course titles are sent.
+            </p>
+            <div>
+                <button type="button" class="btn btn-dark btn-sm" :disabled="coachStatus === 'loading' || !isOnline"
+                    @click="askCoach">
+                    {{ coachStatus === 'loading' ? 'Thinking…' : 'Suggest what to learn next' }}
+                </button>
+                <p v-if="!isOnline" class="small text-muted mt-2 mb-0">You're offline. Reconnect to ask the coach.</p>
+            </div>
+            <div aria-live="polite">
+                <p v-if="coachStatus === 'done'" class="mt-3 mb-0" style="white-space: pre-line">{{ coachText }}</p>
+                <p v-if="coachStatus === 'error'" class="small text-danger mt-3 mb-0" role="alert">{{ coachError }}</p>
+            </div>
+        </section>
 
         <h2 class="h5 mt-4 mb-3">Bookmarked Courses</h2>
         <p v-if="bookmarkedCourses.length === 0" class="text-muted">

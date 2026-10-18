@@ -9,6 +9,7 @@ import { timingSafeEqual, createHash, randomUUID } from 'node:crypto'
 import { sanitiseSummaryRequest, buildSummaryPdf, cleanText } from './lib/summary.js'
 import { sendEmail, escapeHtml } from './lib/mailer.js'
 import { takeToken } from './lib/rateLimit.js'
+import { sanitiseCoachRequest, buildPrompt, askGemini } from './lib/coach.js'
 
 /**
  * Longview Cloud Functions (BR E.1 Cloud Functions, BR D.2 Email)
@@ -20,6 +21,8 @@ const db = getFirestore()
 
 const RESEND_API_KEY = defineSecret('RESEND_API_KEY')
 const ADMIN_INVITE_CODE = defineSecret('ADMIN_INVITE_CODE')
+const GEMINI_API_KEY = defineSecret('GEMINI_API_KEY')
+const GEMINI_MODEL = defineString('GEMINI_MODEL', { default: 'gemini-3.8-flash' })
 // onboarding@resend.dev works with no domain set-up, but Resend only delivers
 // from it to the account owner's own address. Set FROM_EMAIL in functions/.env
 // once a domain is verified.
@@ -183,6 +186,39 @@ export const adminSummary = onCall(async (request) => {
     members: total.data().count - admins.data().count,
     summariesSent: summaries.data().count,
     signups,
+  }
+})
+
+
+// BR F.1 GenAI: personalised next-step suggestions from Gemini
+
+export const askCoach = onCall({ secrets: [GEMINI_API_KEY] }, async (request) => {
+  const uid = requireSignedIn(request)
+
+  let input
+  try {
+    input = sanitiseCoachRequest(request.data)
+  } catch (err) {
+    throw new HttpsError('invalid-argument', err.message)
+  }
+
+  // The model costs quota, so cap each account at 10 requests an hour.
+  const allowed = await takeToken(db, `coach_${uid}`, { max: 10, windowMs: 60 * 60 * 1000 })
+  if (!allowed) {
+    throw new HttpsError('resource-exhausted', 'You can ask the coach 10 times per hour. Please try again later.')
+  }
+
+  try {
+    const suggestion = await askGemini({
+      apiKey: GEMINI_API_KEY.value(),
+      model: GEMINI_MODEL.value() || 'gemini-3.8-flash',
+      prompt: buildPrompt(input),
+    })
+    return { suggestion }
+  } catch (err) {
+    // The provider's message stays in the logs, never in the browser.
+    logger.error('Gemini request failed', { uid, status: err.status, detail: err.message })
+    throw new HttpsError('unavailable', 'The coach is unavailable right now. Please try again later.')
   }
 })
 
