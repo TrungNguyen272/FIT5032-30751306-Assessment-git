@@ -42,3 +42,28 @@
 footer.bg-dark {
   background-color: var(--lv-green-dark) !important;
 }
+
+/* Skip link: hidden until a keyboard user tabs to it */
+.skip-link {
+  position: absolute;
+  left: 0.5rem;
+  top: -4rem;
+  z-index: 2000;
+  padding: 0.5rem 1rem;
+  background: #fff;
+  color: #1b4332;
+  border: 2px solid #1b4332;
+  border-radius: 0.25rem;
+}
+.skip-link:focus {
+  top: 0.5rem;
+}
+
+main:focus {
+  outline: none;
+}
+
+/* Darker grey so footer text passes AA contrast */
+footer .text-secondary {
+  color: #495057 !important;
+}

@@ -74,4 +74,24 @@ router.beforeEach(async (to) => {
   return true
 })
 
+// Each page gets its own tab title (WCAG 2.4.2).
+const PAGE_TITLES = {
+  '/': 'Longview – Learn, connect and cut your carbon',
+  '/courses': 'Course catalogue',
+  '/programs': 'Programs',
+  '/contact': 'Get Involved',
+  '/about': 'Our Story & Mission',
+  '/login': 'Log in',
+  '/register': 'Join Longview',
+  '/dashboard': 'Your dashboard',
+  '/community': 'Community data',
+  '/map': 'Find a group',
+  '/admin': 'Admin dashboard',
+}
+
+router.afterEach((to) => {
+  const page = PAGE_TITLES[to.path]
+  document.title = !page || to.path === '/' ? PAGE_TITLES['/'] : `${page} – Longview`
+})
+
 export default router

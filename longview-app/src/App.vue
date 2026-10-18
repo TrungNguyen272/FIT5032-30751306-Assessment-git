@@ -1,12 +1,20 @@
 <script setup>
 import NavBar from './components/NavBar.vue'
+
+// Lets keyboard users jump past the navbar straight to the page content.
+function skipToMain() {
+  const main = document.getElementById('main-content')
+  main?.focus()
+  main?.scrollIntoView()
+}
 </script>
 
 <template>
-  <NavBar />
-  <main>
-    <router-view />
-  </main>
+  <a class="skip-link" href="#main-content" @click.prevent="skipToMain">Skip to main content</a>
+<NavBar />
+<main id="main-content" tabindex="-1">
+  <router-view />
+</main> 
 
   <footer class="py-5 mt-5" style="background-color: #e3e9f0; border-top: 3px solid #2b6cb0">
     <div class="container">
