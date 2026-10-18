@@ -73,7 +73,7 @@ function handleSubmit() {
 
     <form novalidate @submit.prevent="handleSubmit">
       <div class="row">
-        <div class="col-6 mb-3">
+        <div class="col-12 col-md-6 mb-3">
           <label for="name" class="form-label">Full name</label>
           <input
             id="name"
@@ -85,7 +85,7 @@ function handleSubmit() {
           <div v-if="formErrors.name" class="invalid-feedback">{{ formErrors.name }}</div>
         </div>
 
-        <div class="col-6 mb-3">
+        <div class="col-12 col-md-6 mb-3">
           <label for="email" class="form-label">Email address</label>
           <input
             id="email"
