@@ -95,7 +95,8 @@ function clearFilters() {
 // Build the CSV from the filtered and sorted rows (all pages, not just the visible one),
 // then trigger a browser download.
 function downloadCsv() {
-    const blob = new Blob([toCsv(sortedRows.value, props.columns)], { type: 'text/csv;charset=utf-8' })
+    if (sortedRows.value.length === 0) return
+    const blob = new Blob(['\ufeff' + toCsv(sortedRows.value, props.columns)], { type: 'text/csv;charset=utf-8' })
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
@@ -120,9 +121,10 @@ const idBase = `dt-${Math.random().toString(36).slice(2, 8)}`
                         @click="clearFilters(); sortKey = null; sortDirection = null">
                         Reset
                     </button>
-                    <button type="button" class="btn btn-outline-dark btn-sm" @click="downloadCsv">
+                    <button type="button" class="btn btn-outline-dark btn-sm" :disabled="sortedRows.length === 0"
+                        @click="downloadCsv">
                         Export CSV
-                    </button>
+                    </button> 
                 </div>
             </div>
 
@@ -155,7 +157,7 @@ const idBase = `dt-${Math.random().toString(36).slice(2, 8)}`
                         <tr>
                             <th v-for="col in columns" :key="`${col.key}-filter`" class="fw-normal">
                                 <label :for="`${idBase}-${col.key}`" class="visually-hidden">Filter {{ col.label
-                                    }}</label>
+                                }}</label>
                                 <select v-if="col.filter === 'select'" :id="`${idBase}-${col.key}`"
                                     v-model="columnFilters[col.key]" class="form-select form-select-sm">
                                     <option value="">All</option>
