@@ -12,18 +12,6 @@ import { takeToken } from './lib/rateLimit.js'
 
 /**
  * Longview Cloud Functions (BR E.1 Cloud Functions, BR D.2 Email)
- *
- * One of each trigger style, because each fits a different job:
- *   - assignRole            callable          server-side admin invite check
- *   - sendLearningSummary   callable          builds a PDF and emails it (Resend)
- *   - adminSummary          callable          admin-only aggregate stats
- *   - sendWelcomeEmail      Firestore trigger runs when a profile is created
- *   - stats                 HTTPS (REST)      public, read-only JSON endpoint
- *
- * Callables receive the caller's verified identity in request.auth, so there
- * is no hand-rolled token parsing. Secrets (RESEND_API_KEY, ADMIN_INVITE_CODE)
- * live in Secret Manager and are only readable inside these functions - they
- * never reach the browser.
  */
 
 setGlobalOptions({ region: 'australia-southeast1', maxInstances: 5 })
@@ -66,9 +54,8 @@ function codesMatch(supplied, expected) {
   return timingSafeEqual(a, b)
 }
 
-// ---------------------------------------------------------------------------
 // assignRole - the only path to the admin role
-// ---------------------------------------------------------------------------
+
 export const assignRole = onCall({ secrets: [ADMIN_INVITE_CODE] }, async (request) => {
   const uid = requireSignedIn(request)
 
@@ -89,9 +76,8 @@ export const assignRole = onCall({ secrets: [ADMIN_INVITE_CODE] }, async (reques
   return { role: 'admin' }
 })
 
-// ---------------------------------------------------------------------------
 // sendLearningSummary - BR D.2: email with a generated PDF attachment
-// ---------------------------------------------------------------------------
+
 export const sendLearningSummary = onCall({ secrets: [RESEND_API_KEY] }, async (request) => {
   const uid = requireSignedIn(request)
 
@@ -112,7 +98,7 @@ export const sendLearningSummary = onCall({ secrets: [RESEND_API_KEY] }, async (
   }
 
   const profile = await getProfile(uid)
-  // The recipient comes from the verified login token, NOT from the request,
+  // The recipient comes from the verified login token, not from the request,
   // so this endpoint can't be used to send mail to arbitrary addresses.
   const to = request.auth.token.email
   if (!to) throw new HttpsError('failed-precondition', 'Your account has no email address.')
@@ -173,11 +159,30 @@ export const adminSummary = onCall(async (request) => {
     db.collection('mailLog').where('kind', '==', 'summary').count().get(),
   ])
 
+  // Sign-ups per day for the last 30 days (admin line chart).
+  const DAYS = 30
+  const since = new Date(Date.now() - (DAYS - 1) * 24 * 60 * 60 * 1000)
+  since.setUTCHours(0, 0, 0, 0)
+  const recent = await users.where('createdAt', '>=', since).select('createdAt').get()
+  const perDay = {}
+  recent.forEach((doc) => {
+    const created = doc.data().createdAt?.toDate?.()
+    if (!created) return
+    const key = created.toISOString().slice(0, 10)
+    perDay[key] = (perDay[key] || 0) + 1
+  })
+  const signups = []
+  for (let i = 0; i < DAYS; i++) {
+    const day = new Date(since.getTime() + i * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
+    signups.push({ date: day, count: perDay[day] || 0 })
+  }
+
   return {
     totalAccounts: total.data().count,
     admins: admins.data().count,
     members: total.data().count - admins.data().count,
     summariesSent: summaries.data().count,
+    signups,
   }
 })
 
@@ -212,11 +217,6 @@ export const sendWelcomeEmail = onDocumentCreated(
 )
 
 // stats - a small public REST endpoint (plain HTTPS function)
-//
-// Callables suit our own app (they bring the logged-in user with them). A plain
-// HTTPS function suits public, cacheable data that anything can fetch. Reached
-// through Hosting at GET /api/stats (see firebase.json), so the browser sees one
-// origin and the CDN can cache it.
 
 export const stats = onRequest(
   {
