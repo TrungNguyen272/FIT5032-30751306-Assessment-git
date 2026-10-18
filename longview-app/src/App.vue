@@ -11,7 +11,7 @@ import NavBar from './components/NavBar.vue'
   <footer class="py-5 mt-5" style="background-color: #e3e9f0; border-top: 3px solid #2b6cb0">
     <div class="container">
       <div class="row g-4">
-        <div class="col-3" style="min-width: 0">
+        <div class="col-12 col-lg-3" style="min-width: 0">
           <p class="fw-bold text-dark mb-2" style="letter-spacing: 0.5px">LONGVIEW</p>
           <p class="small text-secondary">
             A Melbourne-based not-for-profit connecting citizens to climate action, active transit,
@@ -19,7 +19,7 @@ import NavBar from './components/NavBar.vue'
           </p>
         </div>
 
-        <div class="col-2" style="min-width: 0">
+        <div class="col-6 col-md-3 col-lg-2" style="min-width: 0">
           <p class="fw-bold text-dark mb-2 text-break">Learn</p>
           <ul class="list-unstyled small">
             <li class="mb-2">
@@ -50,7 +50,7 @@ import NavBar from './components/NavBar.vue'
           </ul>
         </div>
 
-        <div class="col-2" style="min-width: 0">
+        <div class="col-6 col-md-3 col-lg-2" style="min-width: 0">
           <p class="fw-bold text-dark mb-2 text-break">Programs</p>
           <ul class="list-unstyled small">
             <li class="mb-2">
@@ -81,7 +81,7 @@ import NavBar from './components/NavBar.vue'
           </ul>
         </div>
 
-        <div class="col-2" style="min-width: 0">
+        <div class="col-6 col-md-3 col-lg-2" style="min-width: 0">
           <p class="fw-bold text-dark mb-2 text-break">Get Involved</p>
           <ul class="list-unstyled small">
             <li class="mb-2">
@@ -107,7 +107,7 @@ import NavBar from './components/NavBar.vue'
           </ul>
         </div>
 
-        <div class="col-3" style="min-width: 0">
+        <div class="col-6 col-md-3 col-lg-3" style="min-width: 0">
           <p class="fw-bold text-dark mb-2 text-break">About</p>
           <ul class="list-unstyled small">
             <li class="mb-2">
