@@ -42,6 +42,9 @@ async function handleLogout() {
             <li class="nav-item">
               <router-link class="nav-link" to="/community">Community</router-link>
             </li>
+            <li class="nav-item">
+              <router-link class="nav-link" to="/map">Map</router-link>
+            </li>
             <li v-if="isAdmin" class="nav-item">
               <router-link class="nav-link" to="/admin">Admin</router-link>
             </li>
