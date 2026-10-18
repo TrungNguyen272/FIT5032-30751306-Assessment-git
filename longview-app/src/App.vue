@@ -1,5 +1,7 @@
 <script setup>
 import NavBar from './components/NavBar.vue'
+import { useOnlineStatus } from './composables/useOnlineStatus'
+const { isOnline } = useOnlineStatus()
 
 // Lets keyboard users jump past the navbar straight to the page content.
 function skipToMain() {
@@ -11,10 +13,14 @@ function skipToMain() {
 
 <template>
   <a class="skip-link" href="#main-content" @click.prevent="skipToMain">Skip to main content</a>
-<NavBar />
-<main id="main-content" tabindex="-1">
-  <router-view />
-</main> 
+  <NavBar />
+  <div v-if="!isOnline" class="alert alert-warning rounded-0 mb-0 text-center py-2 small" role="status">
+    You're offline. Your bookmarks, ratings and form drafts are saved on this device, but actions that need the internet
+    are paused.
+  </div> 
+  <main id="main-content" tabindex="-1">
+    <router-view />
+  </main>
 
   <footer class="py-5 mt-5" style="background-color: #e3e9f0; border-top: 3px solid #2b6cb0">
     <div class="container">
@@ -31,29 +37,19 @@ function skipToMain() {
           <p class="fw-bold text-dark mb-2 text-break">Learn</p>
           <ul class="list-unstyled small">
             <li class="mb-2">
-              <router-link class="text-secondary text-decoration-none" to="/courses"
-                >Course Catalogue</router-link
-              >
+              <router-link class="text-secondary text-decoration-none" to="/courses">Course Catalogue</router-link>
             </li>
             <li class="mb-2">
-              <router-link class="text-secondary text-decoration-none" to="/courses"
-                >Course Detail Page</router-link
-              >
+              <router-link class="text-secondary text-decoration-none" to="/courses">Course Detail Page</router-link>
             </li>
             <li class="mb-2">
-              <router-link class="text-secondary text-decoration-none" to="/courses"
-                >Climate Basics Hub</router-link
-              >
+              <router-link class="text-secondary text-decoration-none" to="/courses">Climate Basics Hub</router-link>
             </li>
             <li class="mb-2">
-              <router-link class="text-secondary text-decoration-none" to="/courses"
-                >School Workshops</router-link
-              >
+              <router-link class="text-secondary text-decoration-none" to="/courses">School Workshops</router-link>
             </li>
             <li class="mb-2">
-              <router-link class="text-secondary text-decoration-none" to="/courses"
-                >Teaching Kits</router-link
-              >
+              <router-link class="text-secondary text-decoration-none" to="/courses">Teaching Kits</router-link>
             </li>
           </ul>
         </div>
@@ -62,29 +58,20 @@ function skipToMain() {
           <p class="fw-bold text-dark mb-2 text-break">Programs</p>
           <ul class="list-unstyled small">
             <li class="mb-2">
-              <router-link class="text-secondary text-decoration-none" to="/programs"
-                >Walking Groups</router-link
-              >
+              <router-link class="text-secondary text-decoration-none" to="/programs">Walking Groups</router-link>
             </li>
             <li class="mb-2">
-              <router-link class="text-secondary text-decoration-none" to="/programs"
-                >Cycling Groups</router-link
-              >
+              <router-link class="text-secondary text-decoration-none" to="/programs">Cycling Groups</router-link>
             </li>
             <li class="mb-2">
-              <router-link class="text-secondary text-decoration-none" to="/programs"
-                >Find a Group</router-link
-              >
+              <router-link class="text-secondary text-decoration-none" to="/programs">Find a Group</router-link>
             </li>
             <li class="mb-2">
-              <router-link class="text-secondary text-decoration-none" to="/programs"
-                >Active-Travel Challenge</router-link
-              >
+              <router-link class="text-secondary text-decoration-none" to="/programs">Active-Travel
+                Challenge</router-link>
             </li>
             <li class="mb-2">
-              <router-link class="text-secondary text-decoration-none" to="/programs"
-                >Event Calendar</router-link
-              >
+              <router-link class="text-secondary text-decoration-none" to="/programs">Event Calendar</router-link>
             </li>
           </ul>
         </div>
@@ -93,24 +80,17 @@ function skipToMain() {
           <p class="fw-bold text-dark mb-2 text-break">Get Involved</p>
           <ul class="list-unstyled small">
             <li class="mb-2">
-              <router-link class="text-secondary text-decoration-none" to="/contact"
-                >Volunteer</router-link
-              >
+              <router-link class="text-secondary text-decoration-none" to="/contact">Volunteer</router-link>
             </li>
             <li class="mb-2">
-              <router-link class="text-secondary text-decoration-none" to="/contact"
-                >Donate</router-link
-              >
+              <router-link class="text-secondary text-decoration-none" to="/contact">Donate</router-link>
             </li>
             <li class="mb-2">
-              <router-link class="text-secondary text-decoration-none" to="/contact"
-                >Corporate Partnerships</router-link
-              >
+              <router-link class="text-secondary text-decoration-none" to="/contact">Corporate
+                Partnerships</router-link>
             </li>
             <li class="mb-2">
-              <router-link class="text-secondary text-decoration-none" to="/contact"
-                >School Partnerships</router-link
-              >
+              <router-link class="text-secondary text-decoration-none" to="/contact">School Partnerships</router-link>
             </li>
           </ul>
         </div>
@@ -119,32 +99,22 @@ function skipToMain() {
           <p class="fw-bold text-dark mb-2 text-break">About</p>
           <ul class="list-unstyled small">
             <li class="mb-2">
-              <router-link class="text-secondary text-decoration-none" to="/about"
-                >Our Story &amp; Mission</router-link
-              >
+              <router-link class="text-secondary text-decoration-none" to="/about">Our Story &amp; Mission</router-link>
             </li>
             <li class="mb-2">
-              <router-link class="text-secondary text-decoration-none" to="/about"
-                >Team &amp; Partners</router-link
-              >
+              <router-link class="text-secondary text-decoration-none" to="/about">Team &amp; Partners</router-link>
             </li>
             <li class="mb-2">
-              <router-link class="text-secondary text-decoration-none" to="/about"
-                >Impact Reports</router-link
-              >
+              <router-link class="text-secondary text-decoration-none" to="/about">Impact Reports</router-link>
             </li>
             <li class="mb-2">
-              <router-link class="text-secondary text-decoration-none" to="/about"
-                >News &amp; Media</router-link
-              >
+              <router-link class="text-secondary text-decoration-none" to="/about">News &amp; Media</router-link>
             </li>
             <li class="mb-2">
               <router-link class="text-secondary text-decoration-none" to="/about">FAQ</router-link>
             </li>
             <li class="mb-2">
-              <router-link class="text-secondary text-decoration-none" to="/about"
-                >Contact Us</router-link
-              >
+              <router-link class="text-secondary text-decoration-none" to="/about">Contact Us</router-link>
             </li>
           </ul>
         </div>

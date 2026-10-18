@@ -6,8 +6,10 @@ import { useAuth } from '../composables/useAuth'
 import { useRatings } from '../composables/useRatings'
 import coursesData from '../data/courses.json'
 import { useLocalStorage } from '../composables/useLocalStorage'
+import { useOnlineStatus } from '../composables/useOnlineStatus'
 
 const { currentUser } = useAuth()
+const { isOnline } = useOnlineStatus()
 const { getUserRating } = useRatings()
 const bookmarkedIds = useLocalStorage('longview:savedCourseIds', [])
 
@@ -164,9 +166,10 @@ async function sendSummary() {
             </p>
 
             <div>
-                <button type="submit" class="btn btn-dark btn-sm" :disabled="sendStatus === 'sending'">
+                <button type="submit" class="btn btn-dark btn-sm" :disabled="sendStatus === 'sending' || !isOnline">
                     {{ sendStatus === 'sending' ? 'Sending…' : 'Send email' }}
                 </button>
+                <p v-if="!isOnline" class="small text-muted mt-2 mb-0">You're offline. Reconnect to send your summary.</p>
             </div>
 
             <p v-if="sendMessage" class="small mt-3 mb-0"

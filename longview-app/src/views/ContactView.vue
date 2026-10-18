@@ -1,12 +1,15 @@
 <script setup>
 import { nextTick, reactive, ref } from 'vue'
+import { useLocalStorage } from '../composables/useLocalStorage'
 
-const form = reactive({
+// Draft autosaves to Local Storage, so a refresh or a dropped connection doesn't lose it.
+const draft = useLocalStorage('longview:contactDraft', {
   name: '',
   email: '',
   message: '',
   interest: 'volunteer',
 })
+const form = draft.value
 
 const formErrors = reactive({
   name: '',
@@ -113,6 +116,7 @@ function handleSubmit() {
           :class="{ 'is-invalid': formErrors.message }" :aria-invalid="formErrors.message ? 'true' : 'false'"
           :aria-describedby="formErrors.message ? 'message-error' : null"></textarea>
         <div v-if="formErrors.message" id="message-error" class="invalid-feedback">{{ formErrors.message }}</div>
+        <p class="form-text">Your draft is saved on this device as you type.</p>
       </div>
 
       <button type="submit" class="btn btn-dark">Send message</button>
