@@ -58,18 +58,18 @@ function handleRate(courseId, stars) {
     <h1 class="mb-4">Course Catalogue</h1>
 
     <div class="row g-3 mb-4">
-      <div class="col-6">
+      <div class="col-12 col-md-6">
         <label for="search" class="form-label">Search courses</label>
         <input id="search" v-model="searchQuery" type="text" class="form-control"
           placeholder="Try 'transport' or 'workshop'" />
       </div>
-      <div class="col-4">
+      <div class="col-12 col-sm-6 col-md-4"> 
         <label for="category" class="form-label">Category</label>
         <select id="category" v-model="activeCategory" class="form-select">
           <option v-for="cat in categories" :key="cat" :value="cat">{{ cat }}</option>
         </select>
       </div>
-      <div class="col-2 d-flex align-items-end">
+      <div class="col-12 col-sm-6 col-md-2 d-flex align-items-end">
         <span class="text-muted small">Showing {{ filteredCourses.length }} of {{ courses.length }}</span>
       </div>
     </div>
