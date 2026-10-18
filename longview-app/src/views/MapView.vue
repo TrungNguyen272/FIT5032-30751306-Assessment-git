@@ -427,7 +427,7 @@ watch([origin, selectedId, mode], loadRoute)
             </div>
 
             <div class="col-12 col-lg-8 order-1 order-lg-2">
-                <div ref="mapEl" class="lv-map rounded border" role="application" aria-label="Map of Longview groups">
+                <div ref="mapEl" class="lv-map rounded border" role="region" aria-label="Map of Longview groups">
                 </div>
             </div>
         </div>
