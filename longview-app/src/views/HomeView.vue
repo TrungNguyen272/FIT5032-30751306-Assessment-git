@@ -50,12 +50,13 @@ const stats = ref([
     <div class="row g-4">
       <div class="col-12 col-sm-6 col-lg-4" v-for="event in events" :key="event.id">
         <div class="card h-100 shadow-sm">
-          <div class="bg-light d-flex align-items-center justify-content-center" style="height: 140px"></div>
+          <div class="bg-light d-flex align-items-center justify-content-center" style="height: 140px" aria-hidden="true"></div>
           <div class="card-body">
             <span class="badge text-bg-light text-muted border mb-2">{{ event.type }}</span>
             <h6 class="card-title">{{ event.title }}</h6>
             <p class="card-text text-muted small mb-3">{{ event.when }} @ {{ event.where }}</p>
-            <router-link to="/courses" class="btn btn-outline-dark btn-sm w-100">View Details</router-link>
+            <router-link to="/courses" class="btn btn-outline-dark btn-sm w-100"
+              :aria-label="`View details: ${event.title}`">View Details</router-link>  
           </div>
         </div>
       </div>

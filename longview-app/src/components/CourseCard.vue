@@ -30,7 +30,7 @@ defineEmits(['toggle-save', 'rate'])
             {{ isSaved ? '✓ Bookmarked' : '+ Bookmark' }}
           </button> 
         </div>
-        <h5 class="card-title">{{ course.title }}</h5>
+        <h3 class="card-title h5">{{ course.title }}</h3>
         <p class="card-text text-muted small mb-2">{{ course.type }}</p>
         <div class="mt-auto">
           <Ratings :average="average" :count="count" :user-rating="userRating" :interactive="canRate"
